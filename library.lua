@@ -175,6 +175,7 @@ function utility:GetAsset(Asset)
 		print(resp)
 	end
 end
+_G.getAsset = utility.GetAsset
 
 function utility:MakeFolders()
 	if not isfolder(rootFolderName) then
