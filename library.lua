@@ -77,6 +77,17 @@ function utility:RenderObject(RenderType, RenderProperties, RenderHidden)
 	return Render
 end
 
+function utility:DestroyObject(Instance)
+	if not Instance then return end
+	for i = #library.Renders, 1, -1 do
+		if library.Renders[i][1] == Instance then
+			table.remove(library.Renders, i)
+			break
+		end
+	end
+	Instance:Destroy()
+end
+
 function utility:CreateConnection(ConnectionType, ConnectionCallback)
 	local Connection = ConnectionType:Connect(ConnectionCallback)
 
@@ -241,6 +252,9 @@ function utility:SaveConfig(Name)
 
 	return true, "Saved config "..Name
 end
+function library:SaveConfig(Name)
+	return utility:SaveConfig(Name)
+end
 
 function utility:LoadConfig(Name)
 	if not Name then
@@ -273,6 +287,10 @@ function utility:LoadConfig(Name)
 	end
 	return true, "Loaded config "..Name
 end
+function library:LoadConfig(Name)
+	return utility:LoadConfig(Name)
+end
+
 
 -- all credits to linoria lib
 function utility:GetConfigList()
@@ -298,6 +316,9 @@ function utility:GetConfigList()
 	end
 
 	return out
+end
+function library:GetConfigList()
+	return utility:GetConfigList()
 end
 
 --// main
@@ -708,7 +729,7 @@ function library:CreateWindow(Properties)
 	end
 
 	function Window:SetToggleKey(Key)
-		Window.Key = Key
+    	Window.Key = Key
 	end
 	--
 	return setmetatable(Window, library)
@@ -1719,12 +1740,14 @@ do -- // Content
 				end
 				--
 				function Content_:Open()
+					
 					Content_.Section:CloseContent()
 					--
 					local Open = {}
 					local Connections = {}
 					--
 					local InputCheck
+					--
 					--
 					local Content_Open_Holder = utility:RenderObject("Frame", {
 						BackgroundColor3 = Color3.fromRGB(0, 0, 0),
@@ -1946,7 +1969,7 @@ do -- // Content
 		createdObjects.keybinds[FlagName] = Content_
 
 		local Keys = {
-			KeyCodes = {"Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "A", "S", "D", "F", "G", "H", "J", "K", "L", "Z", "X", "C", "V", "B", "N", "M", "One", "Two", "Three", "Four", "Five", "Six", "Seveen", "Eight", "Nine", "0", "Insert", "Tab", "Home", "End", "LeftAlt", "LeftControl", "LeftShift", "RightAlt", "RightControl", "RightShift", "CapsLock"},
+			KeyCodes = {"Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "A", "S", "D", "F", "G", "H", "J", "K", "L", "Z", "X", "C", "V", "B", "N", "M", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "0", "Insert", "Tab", "Home", "End", "LeftAlt", "LeftControl", "LeftShift", "RightAlt", "RightControl", "RightShift", "CapsLock"},
 			Inputs = {"MouseButton1", "MouseButton2", "MouseButton3"},
 			Shortened = {["MouseButton1"] = "M1", ["MouseButton2"] = "M2", ["MouseButton3"] = "M3", ["Insert"] = "INS", ["LeftAlt"] = "LA", ["LeftControl"] = "LC", ["LeftShift"] = "LS", ["RightAlt"] = "RA", ["RightControl"] = "RC", ["RightShift"] = "RS", ["CapsLock"] = "CL"}
 		}
@@ -2079,6 +2102,7 @@ do -- // Content
 								else
 									Content_:Set({KeyType, Key.Name})
 								end
+								Content_.KeyChangeCallback(Content_:Get())
 								return true
 							end
 						end
@@ -2645,56 +2669,57 @@ do -- // Content
 					end
 
 					do -- // Connections
-
 						local SatDrag = utility:CreateConnection(ValSat_Picker_Dark.InputBegan, function(Input)
 							if Input.UserInputType == Enum.UserInputType.MouseButton1 then
 								library.OnColorPicker = true
 								Dragging.Sat = true
-								while Dragging.Sat do
-									local Mouse = utility:MouseLocation()
-									local MinX = ValSat_Picker_Dark.AbsolutePosition.X
-									local MaxX = MinX + ValSat_Picker_Dark.AbsoluteSize.X
-									local MinY = ValSat_Picker_Dark.AbsolutePosition.Y
-									local MaxY = MinY + ValSat_Picker_Dark.AbsoluteSize.Y
-									local MouseX = math.clamp(Mouse.X, MinX, MaxX)
-									local MouseY = math.clamp(Mouse.Y - 36, MinY, MaxY)
-									Content_.Sat = (MouseX - MinX) / (MaxX - MinX)
-									Content_.Val = 1 - ((MouseY - MinY) / (MaxY - MinY))
-									UpdateDisplay()
-									RunService.RenderStepped:Wait()
-								end
 							end
 						end)
+
 						local HueDrag = utility:CreateConnection(Hue_Picker_Color.InputBegan, function(Input)
 							if Input.UserInputType == Enum.UserInputType.MouseButton1 then
 								library.OnColorPicker = true
 								Dragging.Hue = true
-								while Dragging.Hue do
-									local Mouse = utility:MouseLocation()
-									local MinY = Hue_Picker_Color.AbsolutePosition.Y
-									local MaxY = MinY + Hue_Picker_Color.AbsoluteSize.Y
-									local MouseY = math.clamp(Mouse.Y - 36, MinY, MaxY)
-									Content_.Hue = (MouseY - MinY) / (MaxY - MinY)
-									UpdateDisplay()
-									RunService.RenderStepped:Wait()
-								end
 							end
 						end)
+
 						local AlphaDrag = utility:CreateConnection(Alpha_Picker_Color.InputBegan, function(Input)
 							if Input.UserInputType == Enum.UserInputType.MouseButton1 then
 								library.OnColorPicker = true
 								Dragging.Alpha = true
-								while Dragging.Alpha do
-									local Mouse = utility:MouseLocation()
-									local MinX = Alpha_Picker_Color.AbsolutePosition.X
-									local MaxX = MinX + Alpha_Picker_Color.AbsoluteSize.X
-									local MouseX = math.clamp(Mouse.X, MinX, MaxX)
-									Content_.Transparency = 1 - ((MouseX - MinX) / (MaxX - MinX))
-									UpdateDisplay()
-									RunService.RenderStepped:Wait()
-								end
 							end
 						end)
+
+						local InsetY = GuiService:GetGuiInset().Y
+
+						local RenderStep = RunService.RenderStepped:Connect(function()
+							if not (Dragging.Sat or Dragging.Hue or Dragging.Alpha) then return end
+							local Mouse = utility:MouseLocation()
+
+							if Dragging.Sat then
+								local MinX = ValSat_Picker_Dark.AbsolutePosition.X
+								local MaxX = MinX + ValSat_Picker_Dark.AbsoluteSize.X
+								local MinY = ValSat_Picker_Dark.AbsolutePosition.Y
+								local MaxY = MinY + ValSat_Picker_Dark.AbsoluteSize.Y
+								Content_.Sat = (math.clamp(Mouse.X, MinX, MaxX) - MinX) / (MaxX - MinX)
+								Content_.Val = 1 - ((math.clamp(Mouse.Y - InsetY, MinY, MaxY) - MinY) / (MaxY - MinY))
+							end
+
+							if Dragging.Hue then
+								local MinY = Hue_Picker_Color.AbsolutePosition.Y
+								local MaxY = MinY + Hue_Picker_Color.AbsoluteSize.Y
+								Content_.Hue = (math.clamp(Mouse.Y - InsetY, MinY, MaxY) - MinY) / (MaxY - MinY)
+							end
+
+							if Dragging.Alpha then
+								local MinX = Alpha_Picker_Color.AbsolutePosition.X
+								local MaxX = MinX + Alpha_Picker_Color.AbsoluteSize.X
+								Content_.Transparency = 1 - ((math.clamp(Mouse.X, MinX, MaxX) - MinX) / (MaxX - MinX))
+							end
+
+							UpdateDisplay()
+						end)
+
 						local DragEnd = utility:CreateConnection(UserInputService.InputEnded, function(Input)
 							if Input.UserInputType == Enum.UserInputType.MouseButton1 then
 								library.OnColorPicker = false
@@ -2703,10 +2728,12 @@ do -- // Content
 								Dragging.Alpha = false
 							end
 						end)
+
 						Connections[#Connections + 1] = SatDrag
 						Connections[#Connections + 1] = HueDrag
 						Connections[#Connections + 1] = AlphaDrag
 						Connections[#Connections + 1] = DragEnd
+						Connections[#Connections + 1] = RenderStep 
 					end
 					--
 					do -- // Functions
