@@ -2498,7 +2498,7 @@ do -- // Content
 					Content_:SetHSVFromRGB(Content_.State)
 					Holder_Outline_Frame.BackgroundColor3 = Content_.State
 					--
-					Content_.Callback(Content_:Get())
+					Content_.Callback(Content_:Get(), Content_.Transparency or 0)
 				end
 				--
 				function Content_:Get()
