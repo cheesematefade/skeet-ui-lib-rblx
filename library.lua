@@ -2,8 +2,6 @@
 creds to original: https://github.com/Iucious/gamesense-ui/blob/main/main.lua
 
 finished and completed ui lib by fade @ https://crankcheat.cc
-
-for docs scroll all the way down
 ]]
 
 local library = {
