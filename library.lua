@@ -36,6 +36,7 @@ local assetFiles = {
 	["https://i.postimg.cc/YCCwGgQ2/rage-icon.png"] = "RageIcon.png",
 	["https://i.postimg.cc/KYdXHHwz/aimbot-icon.png"] = "AimbotIcon.png",
 	["https://i.postimg.cc/G3P0XzQd/visuals-icon.png"] = "VisualsIcon.png",
+	["https://i.postimg.cc/ZqcMnMN1/icons8-settings-100.png"] = "MiscIcon.png",
 	["https://i.postimg.cc/jS5GdTrw/skins-icon.png"] = "SkinsIcon.png",
 	["https://i.postimg.cc/prRSNbZ2/icons8-save-100.png"] = "ConfigIcon.png"
 }
